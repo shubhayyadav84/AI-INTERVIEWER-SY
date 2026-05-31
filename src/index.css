@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark, .dark *));
+
+@keyframes text-glow-pulse-dark {
+  0%, 100% {
+    text-shadow: 0 0 15px rgba(34, 197, 94, 0.6), 0 0 30px rgba(34, 197, 94, 0.25);
+  }
+  50% {
+    text-shadow: 0 0 28px rgba(34, 197, 94, 0.95), 0 0 45px rgba(34, 197, 94, 0.45);
+  }
+}
+
+.dark .glow-text-green {
+  animation: text-glow-pulse-dark 4s infinite ease-in-out;
+}
