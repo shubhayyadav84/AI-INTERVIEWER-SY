@@ -19,6 +19,15 @@ Deploy **frontend and backend together** on [Vercel](https://vercel.com) — no 
 
 The API runs at `/api/*` on the same domain as the UI (`vercel.json` routes are already configured).
 
+### Troubleshooting signup / login
+
+1. **Health check:** open `https://YOUR-APP.vercel.app/api/health`  
+   - `db: true` and `hasJwt: true` → backend env is OK  
+   - `db: false` → set `MONGODB_URL` in Vercel and allow `0.0.0.0/0` in MongoDB Atlas → Network Access  
+   - `hasJwt: false` → set `JWT_SECRET` in Vercel  
+2. **Do not set** `VITE_SERVER_URL` on Vercel (leave it unset).  
+3. Set `FRONTEND_URL` to your live URL (e.g. `https://your-app.vercel.app` or your custom domain).
+
 ## Run locally
 
 ```bash

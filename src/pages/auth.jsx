@@ -68,8 +68,18 @@ function Auth({ isModal = false }) {
       dispatch(setUser(result.data));
       navigate("/home");
     } catch (err) {
-      const msg =
-        err.response?.data?.message || "Something went wrong. Please try again.";
+      let msg = err.response?.data?.message;
+      if (!msg) {
+        if (err.response?.status === 404) {
+          msg = "API not found. Redeploy the app or check Vercel settings.";
+        } else if (err.code === "ERR_NETWORK") {
+          msg = "Cannot reach the server. Check your connection or API URL.";
+        } else if (err.response?.status === 403) {
+          msg = "Request blocked (CORS). Add your site URL to FRONTEND_URL in Vercel.";
+        } else {
+          msg = err.message || "Something went wrong. Please try again.";
+        }
+      }
       setError(msg);
     } finally {
       setLoading(false);

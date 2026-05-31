@@ -1,6 +1,8 @@
+import mongoose from "mongoose"
 import genToken from "../config/token.js"
 import User from "../models/usermodel.js"
 import bcrypt from "bcryptjs"
+import connectDb from "../config/connectdb.js"
 
 const cookieOptions = {
     httpOnly: true,
@@ -11,6 +13,13 @@ const cookieOptions = {
 
 export const register = async (req, res) => {
     try {
+        await connectDb()
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                message: "Database is not connected. Check MONGODB_URL on the server.",
+            })
+        }
+
         const { name, email, password } = req.body
 
         if (!name || !email || !password) {
@@ -80,6 +89,13 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
+        await connectDb()
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                message: "Database is not connected. Check MONGODB_URL on the server.",
+            })
+        }
+
         const { email, password } = req.body
 
         if (!email || !password) {
