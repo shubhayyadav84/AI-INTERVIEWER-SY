@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { clearUser, toggleTheme } from "../../redux/userSlice";
 import axios from "axios";
 import { serverurl } from "../../App";
+import { signOut } from "firebase/auth";
+import { auth } from "../../utils/firebase";
 
 function Navbar() {
   const { user, theme } = useSelector((state) => state.user);
@@ -21,6 +23,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
+      await signOut(auth);
       await axios.get(`${serverurl}/api/auth/logout`, { withCredentials: true });
       dispatch(clearUser());
       navigate("/");
