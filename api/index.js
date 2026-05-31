@@ -70,8 +70,7 @@ app.use(async (req, res, next) => {
     const db = await connectDb()
     if (!db) {
         return res.status(503).json({
-            message:
-                "Database is not connected. Set MONGODB_URL in Vercel and allow 0.0.0.0/0 in MongoDB Atlas.",
+            message: "Database is not connected. Set DATABASE_URL in Vercel (Neon PostgreSQL).",
         })
     }
     next()
@@ -93,7 +92,7 @@ const healthHandler = async (_req, res) => {
         ok: !!db,
         db: !!db,
         hasJwt: !!process.env.JWT_SECRET,
-        hasMongo: !!(process.env.MONGODB_URL || process.env.MONGODB_URI || process.env.MONGO_URL),
+        hasDb: !!process.env.DATABASE_URL,
     })
 }
 
@@ -113,7 +112,7 @@ app.use((err, _req, res, next) => {
 
 connectDb()
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 5000
 
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {

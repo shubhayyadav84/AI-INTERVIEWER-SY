@@ -1,6 +1,6 @@
 import genToken from "../config/token.js"
-import User from "../models/usermodel.js"
 import bcrypt from "bcryptjs"
+import * as User from "../db/userRepository.js"
 
 const cookieOptions = {
     httpOnly: true,
@@ -28,17 +28,19 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "Password must be at least 6 characters" })
         }
 
-        const existingUser = await User.findOne({ email }).select("+password")
+        const existingUser = await User.findUserByEmail(email, { includePassword: true })
         if (existingUser) {
             if (!existingUser.password) {
                 const salt = await bcrypt.genSalt(10)
-                existingUser.password = await bcrypt.hash(password, salt)
-                existingUser.name = name
-                await existingUser.save()
+                const hashedPassword = await bcrypt.hash(password, salt)
+                const updated = await User.updateUser(existingUser._id, {
+                    name,
+                    password: hashedPassword,
+                })
 
-                const token = await genToken(existingUser._id)
+                const token = await genToken(updated._id)
                 res.cookie("token", token, cookieOptions)
-                return res.status(200).json(userPayload(existingUser))
+                return res.status(200).json(userPayload(updated))
             }
 
             return res.status(400).json({ message: "An account with this email already exists" })
@@ -46,8 +48,7 @@ export const register = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-
-        const user = await User.create({ name, email, password: hashedPassword })
+        const user = await User.createUser({ name, email, password: hashedPassword })
         const token = await genToken(user._id)
 
         res.cookie("token", token, cookieOptions)
@@ -66,7 +67,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Email and password are required" })
         }
 
-        const user = await User.findOne({ email }).select("+password")
+        const user = await User.findUserByEmail(email, { includePassword: true })
         if (!user || !user.password) {
             return res.status(400).json({ message: "Invalid email or password" })
         }

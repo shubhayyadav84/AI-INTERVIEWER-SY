@@ -1,32 +1,23 @@
 # AI Interviewer
 
-Full-stack AI mock interview app (React + Vite frontend, Express API in `/api`).
+Full-stack AI mock interview app (React + Vite frontend, Express API, **Neon PostgreSQL**).
 
-Deploy **frontend and backend together** on [Vercel](https://vercel.com) — no separate Render server needed.
+## Deploy on Vercel
 
-## Deploy on Vercel (recommended)
-
-1. Push this repo to GitHub: [AI-INTERVIEWER-MY](https://github.com/shubhayyadav84/AI-INTERVIEWER-MY)
-2. Go to [vercel.com/new](https://vercel.com/new) → **Import** the repository
-3. Framework preset: **Vite** (auto-detected)
-4. Add **Environment Variables** from [`.env.example`](.env.example):
-   - `MONGODB_URL`
+1. Import repo on [vercel.com/new](https://vercel.com/new)
+2. Add environment variables:
+   - `DATABASE_URL` — Neon connection string (`postgresql://...?sslmode=require`)
    - `JWT_SECRET`
    - `OPENROUTER_API_KEY`
-   - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` (if using payments)
-   - `FRONTEND_URL` = your Vercel URL (e.g. `https://ai-interviewer-my.vercel.app`)
-5. Deploy
+   - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` (optional)
+   - `FRONTEND_URL` — your live URL
+3. Deploy
 
-The API runs at `/api/*` on the same domain as the UI (`vercel.json` routes are already configured).
+Tables are created automatically on first API request.
 
-### Troubleshooting signup / login
+### Health check
 
-1. **Health check:** open `https://YOUR-APP.vercel.app/api/health`  
-   - `db: true` and `hasJwt: true` → backend env is OK  
-   - `db: false` → set `MONGODB_URL` in Vercel and allow `0.0.0.0/0` in MongoDB Atlas → Network Access  
-   - `hasJwt: false` → set `JWT_SECRET` in Vercel  
-2. **Do not set** `VITE_SERVER_URL` on Vercel (leave it unset).  
-3. Set `FRONTEND_URL` to your live URL (e.g. `https://your-app.vercel.app` or your custom domain).
+`https://YOUR-APP.vercel.app/api/health` → `{ "ok": true, "db": true, "hasJwt": true, "hasDb": true }`
 
 ## Run locally
 
@@ -34,23 +25,14 @@ The API runs at `/api/*` on the same domain as the UI (`vercel.json` routes are 
 npm install
 ```
 
-Create `api/.env` from `.env.example`, then in **two terminals**:
+Copy `.env.example` to `api/.env` and set `DATABASE_URL`, `JWT_SECRET`, etc.
 
 ```bash
-# Terminal 1 — API
+# Terminal 1 — API (port 5000)
 npm run server
 
 # Terminal 2 — frontend
 npm run dev
 ```
 
-Open http://localhost:5173 (API default: http://localhost:8000).
-
-## Scripts
-
-| Command        | Description              |
-|----------------|--------------------------|
-| `npm run dev`  | Vite dev server          |
-| `npm run server` | Express API (port 8000) |
-| `npm run build` | Production frontend build |
-| `npm start`    | API only (local/production server) |
+Open http://localhost:5173
