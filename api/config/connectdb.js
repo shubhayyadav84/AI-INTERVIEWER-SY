@@ -1,56 +1,52 @@
-import mongoose from "mongoose";
-import dns from "dns";
+import mongoose from "mongoose"
 
 const mongoUri =
     process.env.MONGODB_URL ||
     process.env.MONGODB_URI ||
-    process.env.MONGO_URL;
+    process.env.MONGO_URL
 
-let cached = global.mongoose;
+let cached = global.mongoose
 
 if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
+    cached = global.mongoose = { conn: null, promise: null }
 }
 
 const connectDb = async () => {
     if (!mongoUri) {
-        console.error("DataBase Error: MONGODB_URL (or MONGODB_URI) is not set");
-        return null;
+        console.error("MONGODB_URL is not set")
+        return null
     }
 
-    if (cached.conn) {
-        return cached.conn;
+    if (cached.conn && mongoose.connection.readyState === 1) {
+        return cached.conn
     }
 
     if (!cached.promise) {
-        try {
-            dns.setServers(["8.8.8.8", "1.1.1.1"]);
-        } catch {
-            // ignore
-        }
-
         cached.promise = mongoose
             .connect(mongoUri, {
-                bufferCommands: false,
+                serverSelectionTimeoutMS: 10000,
                 maxPoolSize: 10,
             })
-            .then((mongooseInstance) => {
-                console.log("DataBase Connected");
-                return mongooseInstance;
+            .then((instance) => {
+                console.log("DataBase Connected")
+                return instance
             })
             .catch((error) => {
-                cached.promise = null;
-                console.error(`DataBase Error ${error.message}`);
-                throw error;
-            });
+                cached.promise = null
+                cached.conn = null
+                console.error("DataBase Error:", error.message)
+                throw error
+            })
     }
 
     try {
-        cached.conn = await cached.promise;
-        return cached.conn;
+        cached.conn = await cached.promise
+        return cached.conn
     } catch {
-        return null;
+        cached.promise = null
+        cached.conn = null
+        return null
     }
-};
+}
 
-export default connectDb;
+export default connectDb

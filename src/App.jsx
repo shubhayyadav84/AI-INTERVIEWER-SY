@@ -40,7 +40,9 @@ function App() {
           navigate('/home')
         }
       } catch (err) {
-        console.log("No user authenticated:", err.message)
+        if (err.response?.status !== 401) {
+          console.warn("Session check:", err.response?.data?.message || err.message)
+        }
         dispatch(clearUser())
         // Redirect logged-out users to login/auth page
         if (window.location.pathname === '/home') {
