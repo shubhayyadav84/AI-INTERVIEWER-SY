@@ -4,8 +4,15 @@ let sql = null
 let schemaReady = false
 
 function getDatabaseUrl() {
-    const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
+    const url =
+        process.env.DATABASE_URL ||
+        process.env.POSTGRES_URL ||
+        process.env.NEON_DATABASE_URL
     if (!url) return null
+    if (!url.startsWith("postgres")) {
+        console.error("DATABASE_URL must be a PostgreSQL connection string (Neon)")
+        return null
+    }
     // channel_binding can break some serverless runtimes
     return url
         .replace(/([?&])channel_binding=[^&]*&?/g, "$1")
